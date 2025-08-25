@@ -1,9 +1,9 @@
 %Parametros iniciales
 T = 1;
-N = 4;
+N = 100;
 smpl = 1000*N;
 DC = 50;
-t = linspace(-2*T,2*T,smpl).';
+t = linspace(-T,T,smpl).';
 k = -N:1:N;
 %La onda cuadrada
 x = square(2*pi*t/T+pi*DC/100,DC);
@@ -32,6 +32,7 @@ stem(k, abs(C_k),'filled')
 hold on
 plot(k_sync, abs(sync),'r--','LineWidth',1.5,'DisplayName','|sync|')
 grid on
+hold off
 xlabel('k'), ylabel('|C_k|')
 title('Módulo de los coeficientes de Fourier')
 %Fase Coeficientes de Fourier
@@ -40,12 +41,12 @@ stem(k,angle(C_k),'filled','LineWidth',1.5)
 hold on
 plot(linspace(-N,N,1000*N),angle(sync),'r--')
 grid on
+hold off
 xlabel('k'), ylabel('Fase(C_k) [rad]')
 title('Fase de los Coeficientes de Fourier')
 %Señal Recuperada
 subplot(2,2,3)
-plot(t,x,'k','LineWidth',1.5), hold on
-plot(t,x_rec,'r--','LineWidth',1.5)
+plot(t,x_rec,'-','LineWidth',1.5)
 grid on
 xlabel('t'), ylabel('x(t)')
 title(sprintf('Reconstrucción con N = %d armónicos', N))
