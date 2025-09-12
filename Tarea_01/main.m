@@ -51,7 +51,7 @@ grid on
 xlabel('t'), ylabel('x(t)')
 title(sprintf('Reconstrucción con N = %d armónicos', N))
 %Diferencia entre original y reconstruida
-subplot(3,2,5)
+subplot(3,2,[5,6])
 dif = x_rec-x;
 plot(t,dif,'-','LineWidth',1.5)
 grid on
