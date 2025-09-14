@@ -20,3 +20,10 @@
 1. x_rms = 3.6135
 2. y_rms = 3.6106
 3. THD = 9.0990%
+## Medicion Espectral
+- Script: THD_Espectral.m
+- Grafica: THD_Espectral.png
+### Resultados
+1. THD = 1.7576e+05  ????????
+2. THD+N1 = 734.0945 ????????
+3. THD+N2 = 99.0849  ????????
