@@ -32,10 +32,10 @@ Df = 200;
 % convierte las frecuencias esquina de la banda a índices
 kL = floor((f0-Df)*ts*Nf*D);
 kH = ceil((f0+Df)*ts*Nf*D);
-kB = ceil(25000*ts*Nf*D);
+kB = ceil(25000*ts*Nf*D)-1;
 
 % Calcula las potencias de cada banda
-PB1 = sum(abs(x(kL:kH)).^2);
-PB2 = sum(abs(x(1:kB)).^2);
+PB1 = sum(abs(Xk(kL:kH)).^2);
+PB2 = sum(abs(Xk(1:kB)).^2);
 THDN1 = sqrt((PB2-PB1)/PB1)*100
 THDN2 = sqrt((PB2-PB1)/PB2)*100
