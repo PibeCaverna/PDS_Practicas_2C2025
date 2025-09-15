@@ -24,6 +24,6 @@
 - Script: THD_Espectral.m
 - Grafica: THD_Espectral.png
 ### Resultados
-1. THD = 1.7576e+05  ????????
+1. THD = 7.8661%
 2. THD+N1 = 7.9906%
 3. THD+N2 = 7.9652%

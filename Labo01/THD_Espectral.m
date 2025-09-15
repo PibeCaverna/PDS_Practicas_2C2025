@@ -21,8 +21,8 @@ hold on; plot(fk(id),pk,'ro')
 % calcula el THD para Nh = 15 armónicos
 Nh = 25;
 pkh = pk(1:Nh);
-num = sum(10.^(pkh(2:end)/10));
-den = 10^(pkh(1)/10);
+num = sum(10.^(pkh(3:end)/10));
+den = 10^(pkh(2)/10);
 THD = sqrt(num/den)*100
 
 % THD+N: f0 es la frecuencia del tono, y Df define el ancho de banda B1
