@@ -1,6 +1,5 @@
 %% Clase 9 PDS 251001
 
-%% Blackman
 % Especificaciones del Filtro
 A_paso = 1;         %Amplitud de la banda de paso (db)
 A_rechazo = -50;    %Amplitud de la banda de rechazo (db)
@@ -13,8 +12,8 @@ wp2 = 0.4*pi;       %freq paso superior
 wc1 = (wr1+wp1)/2;  %freq de corte ideal inferior
 wc2 = (wr2+wp2)/2;  %freq de corte ideal superior
 
+%% Blackman
 ALP = 12*pi;        %Ventana de Blackman
-
 % Implementacion del filtro
 delta1 = wp1-wr1;
 delta2 = wr2-wp2;
@@ -29,19 +28,6 @@ figure('Name','Blackman')
 freqz(hT);
 
 %% Kaiser
-
-% Especificaciones del Filtro
-A_paso = 1;         %Amplitud de la banda de paso (db)
-A_rechazo = -6N
-0;    %Amplitud de la banda de rechazo (db)
-ADJ = -15;          %Ajuste de muestras para optimizar el filtro
-
-wr1 = 0.1*pi;       %freq rechazo inferior
-wr2 = 0.5*pi;       %freq rechazo superior
-wp1 = 0.2*pi;       %freq paso inferior
-wp2 = 0.4*pi;       %freq paso superior
-wc1 = (wr1+wp1)/2;  %freq de corte ideal inferior
-wc2 = (wr2+wp2)/2;  %freq de corte ideal superior
 D1 = 10^(A_rechazo/20);
 D2 = (10^(A_paso/20)-1)/(10^(A_paso/20)+1);
 D3 = 10^(A_rechazo/20);

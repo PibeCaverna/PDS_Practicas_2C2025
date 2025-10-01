@@ -1,9 +1,9 @@
-%%Tarea 6, Ejercicio 2, chequeo de los distintos sistemas
+%% Tarea 6, Ejercicio 2, chequeo de los distintos sistemas
 close all;                    % cierra todas las ventanas
 clear all;                    % limpia todas las variables
 
-%Sistema 1
-Muestras1 = 100;
+%% Sistema 1
+Muestras1 = 20;
 n1 = -Muestras1:Muestras1;
 
 sis1x = [1 -sqrt(2) 1];
@@ -32,12 +32,12 @@ figure('Name','Sistema 1')
         xlabel('Frecuencia \times \pi');
         ylabel('\angle{H(e^{j\omega})}')
 
-%Sistema 2
-Muestras2 = 4;
+%% Sistema 2
+Muestras2 = 15;
 n2 = 0:Muestras2-1;
 
 sis2 = [1 1];
-x2 = 1+cos(n2*pi/2);
+x2 = 1+2*cos(n2*pi/2);
 y2 = filter(sis2,1,x2);
 [H2,w2] = freqz(sis2,1,1024,'whole');
 
@@ -61,7 +61,7 @@ figure('Name','Sistema 2')
         xlabel('Frecuencia \times \pi');
         ylabel('\angle{H(e^{j\omega})}')
 
-%Sistema 3
+%% Sistema 3
 Muestras3 = 20;
 n3 = 0:Muestras3-1;
 
