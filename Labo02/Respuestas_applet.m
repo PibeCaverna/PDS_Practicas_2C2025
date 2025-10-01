@@ -19,7 +19,7 @@ grid on; xlabel('f [Hz]'); ylabel('arg\{H(f)\} [°]'); title('Fase');
 panelControles = uipanel('Parent',fig,'Position',[0.01 0.01 0.98 0.28]);
 
 % Popup para seleccionar filtro
-filtros = {'Diferencia hacia atrás','Filtro recursivo 1er orden','Retardador n_d','Eco no recursivo','Eco recursivo'};
+filtros = {'Diferencia hacia atrás','Filtro recursivo 1er orden','Retardador n_d','Eco no recursivo','Eco recursivo','Inversor de frecuencia'};
 hPopup = uicontrol('Parent',panelControles,'Style','popupmenu','Units','normalized',...
                    'Position',[0.01 0.7 0.3 0.25],'String',filtros,'FontSize',10);
 
@@ -70,7 +70,7 @@ function updateFilter(src,hMag,hPhase,hEditA,hSliderA,hTextA,hEditND,hSliderND,h
         case 3 % Retardador
             set([hEditND hSliderND hTextND],'Visible','on');
             hEditND.String = num2str(nd_val); hSliderND.Value = nd_val;
-            [H, w] = freqz([zeros(1,nd_val) 1],1,1024,8000);
+            [H, w] = freqz([zeros(1,nd_val) 1],1,8*1024,8000);
         case 4 % Eco no recursivo
             set([hEditA hSliderA hTextA hEditND hSliderND hTextND],'Visible','on');
             hEditA.String = num2str(a_val); hSliderA.Value = a_val;
@@ -81,6 +81,10 @@ function updateFilter(src,hMag,hPhase,hEditA,hSliderA,hTextA,hEditND,hSliderND,h
             hEditA.String = num2str(a_val); hSliderA.Value = a_val;
             hEditND.String = num2str(nd_val); hSliderND.Value = nd_val;
             [H, w] = freqz(1,[1 zeros(1,nd_val) -a_val],1024,8000);
+        case 6 %desfasador
+            [H, w] = freqz([1],1,1024,8000);
+            %H = H .* exp(1j*pi*(0:numel(H)-1)');
+            %H = H(1:length(w));
     end
 
     set(hMag,'XData',w,'YData',abs(H));
@@ -117,5 +121,5 @@ function actualizarGrafico(val,a_val,nd_val,hMag,hPhase)
             return
     end
     set(hMag,'XData',w,'YData',abs(H));
-    set(hPhase,'XData',w,'YData',angle(H)*180/pi);
+    set(hPhase,'XData',w,'YData',unwrap(angle(H)*180/pi));
 end
