@@ -1,20 +1,30 @@
 %% Tarea 08 Decodificador: Aplicación de filtros 
 %% pasabanda y desplazamiento en frecuencia
 
+%Archivo de entrada
+global IN;
+%Muestras por defecto
+N = 601;
 %Frecuencias de corte para las distintas regiones
 CutA = [9*pi/20 23*pi/40];  CutB = [33*pi/40 pi];
 CutC = [23*pi/40 33*pi/40]; CutD = [0 9*pi/20];
-freq = {CutA CutB CutC CutD};
-%Muestras por defecto
-N = 300;
-%Archivo de entrada
-global IN;
+freq = {CutD CutA CutC CutB};
+%Frecuencias de desplazamiento
+global w;
+w = {pi*11/20 pi*9/20 pi*11/40 -pi*7/10};
+%Filtros H_n
+global H_n;
+H_n = {BlackmanPBd(pi*11/20,pi,N), ...
+       BlackmanPBd(0,pi/8,N), ...
+       BlackmanPBd(3*pi/10,11*pi/20,N), ...
+       BlackmanPBd(pi/8,3*pi/10,N)};
 
 %Opciones
-opts = {'Respuestas en frecuencia', ...
-        'Bandas respuesta frecuencia', ...
-        'Temporal filtrado (sin desplazar)', ...
-        'Bandas de frecuencia (sin desplazar)'};
+opts = {'2. Respuestas en frecuencia filtros', ...
+        '3. Espectros de frecuencia (sin desplazar)', ...
+        '5. Espectros de frecuencia (desplazados, superpuestos)', ...
+        '6. Respuesta en frecuencia filtros superposición', ...
+        '7. Espectros de frecuencia desplazados y filtrados'};
 
 %GUI para ver todo
 Origen = figure(Name='Tarea_08', ...
@@ -63,28 +73,43 @@ cambiar_entrada(IN_Select);
 %Callbacks
 function cambiar_plot(src,ax,freq, N)
   global IN;
+  global H_n
   if isnan(N) || N <= 0
     N = 1;
   end
 
-  FiltA = BlackmanPBd(freq{1}(1),freq{1}(2),N); 
-  FiltB = BlackmanPBd(freq{2}(1),freq{2}(2),N);
+  FiltA = BlackmanPBd(freq{2}(1),freq{2}(2),N); 
+  FiltB = BlackmanPBd(freq{4}(1),freq{4}(2),N);
   FiltC = BlackmanPBd(freq{3}(1),freq{3}(2),N); 
-  FiltD = BlackmanPBd(freq{4}(1),freq{4}(2),N);
+  FiltD = BlackmanPBd(freq{1}(1),freq{1}(2),N);
+
   cla(ax);
   switch src.Value
     case 1
-      frsponse({FiltA FiltB FiltC FiltD}, ...
-               {'Filtro A' 'Filtro B' 'Filtro C' 'Filtro D'}, ax);
+      frsponse({FiltD FiltA FiltC FiltB}, ...
+               {'Filtro D' 'Filtro A' 'Filtro C' 'Filtro B'}, ax);
     case 2
-      frsimple({FiltA FiltB FiltC FiltD}, ...
-               {'Filtro A' 'Filtro B' 'Filtro C' 'Filtro D'}, ax);
+      plotbanda(freqsep({FiltD FiltA FiltC FiltB}, IN.xe), ...
+                {'Banda D' 'Banda A' 'Banda C' 'Banda B'}, ax);
     case 3
-      bandpass({FiltA FiltB FiltC FiltD}, IN.xe, IN.Fs, ...
-               {'Banda A' 'Banda B' 'Banda C' 'Banda D'}, ax);
+      global w;
+      bandas = freqsep({FiltD FiltA FiltC FiltB}, IN.xe);
+      for k = 1:numel(bandas)
+        n = 0:numel(bandas{k})-1;
+        bandas{k} = bandas{k}*2.*(cos(w{k}*n'));
+      end
+      plotbanda(bandas, {'Banda D' 'Banda A' 'Banda C' 'Banda B'}, ax);
     case 4
-      freqband({FiltA FiltB FiltC FiltD}, IN.xe, IN.Fs, ...
-               {'Banda A' 'Banda B' 'Banda C' 'Banda D'}, ax);
+      frsponse(H_n,{'Filtro 1' 'Filtro 2' 'Filtro 3' 'Filtro 4'},ax);
+    case 5
+      global w;
+      bandas = freqsep({FiltD FiltA FiltC FiltB}, IN.xe);
+      for k = 1:numel(bandas)
+        n = 0:numel(bandas{k})-1;
+        bandas{k} = bandas{k}*2.*(cos(w{k}*n'));
+        bandas{k} = filter(H_n{k},1,bandas{k});
+      end
+      plotbanda(bandas, {'Banda D' 'Banda A' 'Banda C' 'Banda B'}, ax);
   end
 end
 function cambiar_entrada(src)
@@ -99,54 +124,12 @@ function frsponse(H,Nombre,ax)
   hold(ax,'on');
   for k = 1:M
     [Hf, w] = freqz(H{k});
-    mag = 20*log10(abs(Hf)+eps);
-
-    plot(ax,w/pi,mag,DisplayName=Nombre{k}); grid(ax,'on');
-    xlabel(ax,"Frecuencia \times \pi [rad/muestra]");
-    ylabel(ax,"Ganancia [dB]");
+    plot(ax,w/pi,abs(Hf)); 
   end
-  hold(ax,'off');
-end
-
-function frsimple(H,Nombre,ax)
-  M = numel(H);
-  hold(ax,'on');
-  xlabel(ax,'Frecuencia × \pi [rad/muestra]');
-  ylabel(ax,'|H(e^{j\omega})|');
-  for k = 1:M
-    [Hf, w] = freqz(H{k}, 1, 1024);
-    plot(ax,w/pi, abs(Hf), 'LineWidth', 1.2);
-  end
-  legend(ax,Nombre, 'Location', 'best');
-  hold(ax,'off');
-end
-
-function bandpass(filtros,senal,fs,leyenda,ax)
-  M = numel(filtros);
-  t = 0:length(senal)-1;
-  t = t/fs;
-  hold(ax,'on');
-  xlabel(ax,'Tiempo [s]');
-  ylabel(ax,'Amplitud');
-  for k = 1:M
-    S = filter(filtros{k},1,senal);
-    plot(ax,t,S,'LineWidth',1.2)
-  end
-  legend(ax,leyenda,'Location','best');
-  hold(ax,'off');
-end
-function freqband(filtros,senal,fs,leyenda,ax)
-  M = numel(filtros);
-  t = 0:length(senal)-1;
-  t = t/fs;
-  hold(ax,'on');
-  xlabel(ax,'Frecuencia \times \pi [rad/muestra]');
-  ylabel(ax,'Amplitud');
-  for k = 1:M
-    [h,w] = freqz(filter(filtros{k},1,senal));
-    plot(ax,w/pi,abs(h),'LineWidth',1.2)
-  end
-  legend(ax,leyenda,'Location','best');
+  grid(ax,'on');
+  legend(ax,Nombre,'Location','best');
+  xlabel(ax,"Frecuencia \times \pi [rad/muestra]");
+  ylabel(ax,"H(e^{j\omega})");
   hold(ax,'off');
 end
 
@@ -157,3 +140,23 @@ function invfreq = inversor_freq(senal)
   invfreq = senal.*((-1).^n)';
 end
 
+function bandas = freqsep(filtros,x)
+  M = numel(filtros);
+  bandas = {};
+  for k = 1:M
+    bandas{k} = filter(filtros{k},1,x);
+  end
+end
+
+function plotbanda(x,Nombres,ax)
+  M = numel(x);
+  hold(ax,'on');
+  for k = 1:M
+    [h, w] = freqz(x{k});
+    plot(ax,w/pi,abs(h),LineWidth=1.2);
+  end
+  xlabel(ax,'Frecuencia \times \pi [rad/muestra]');
+  ylabel(ax,'Amplitud');
+  legend(ax,Nombres,'Location','best');
+  hold(ax,'off')
+end
