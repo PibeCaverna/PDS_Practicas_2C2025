@@ -121,5 +121,5 @@ function actualizarGrafico(val,a_val,nd_val,hMag,hPhase)
             return
     end
     set(hMag,'XData',w,'YData',abs(H));
-    set(hPhase,'XData',w,'YData',unwrap(angle(H)*180/pi));
+    set(hPhase,'XData',w,'YData',unwrap(angle(H))*180/pi);
 end
