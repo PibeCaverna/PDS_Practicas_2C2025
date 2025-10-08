@@ -146,7 +146,7 @@ end
 function cambiar_entrada(src)
   global IN;
   IN = open(fullfile('AudioIN',src.String{src.Value}));
-  IN.xe = fliplr(IN.xe);
+  IN.xe = flip(IN.xe);
   IN.xe = inversor_freq(IN.xe);
 end
 %Funciones del programa
