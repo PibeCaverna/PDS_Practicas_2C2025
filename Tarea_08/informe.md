@@ -20,15 +20,21 @@ function [hT] = BlackmanPBd(wc1,wc2,N)
   
  Debido a que la cantidad de muestras de la ventana debe mantenerse constante a lo largo de todos los filtros (en pos de mantener el retardo de la señal para todas las frecuencias), se desistió de definir la banda de paso, para en su lugar trabajar de forma directa con las frecuencias de corte. Con $601$ muestras en la ventana y partiendo de las frecuencias de corte indicadas, las respuestas impulsivas de los filtros se pueden apreciar en la siguiente figura:
  ![Punto 2](imagenes/2.png)
+```
+Debido a que la cantidad de muestras de la ventana debe mantenerse constante a lo largo de todos los filtros (en pos de mantener el retardo de la señal para todas las frecuencias), se desistió de definir la banda de paso, para en su lugar trabajar de forma directa con las frecuencias de corte. Con $601$ muestras en la ventana y partiendo de las frecuencias de corte indicadas, las respuestas impulsivas de los filtros se pueden apreciar en la siguiente figura:\\
+---
+La siguiente figura muestra la respuesta en freciencia de los cuatro filtros H_n usados para limpiar cada banda de frecuencia despúes de haber sido desplazada a su posición correspondiente
+
+![Punto 2](imagenes/2.png)
 
 ## Inversión de tiempo y frecuencia de la señal encriptada
-  Para invertir en tiempo y frecuencia la señal de entrada se aplicaron los sistemas:
- `     y[n] = x[-n]\\`
- `     y[n] = x[n](-1)^n`
-
-Cuya implementación en matlab termina siendo:
-
-```C
+Para invertir en tiempo y frecuencia la señal de entrada se aplicaron los sistemas:\\
+```
+y[n] = x[-n]
+y[n] = x[n](-1)^n
+```
+Cuya implementación en matlab termina siendo:\\
+```
 IN = open(fullfile('AudioIN',src.String{src.Value}));
 IN.xe = flip(IN.xe);
 IN.xe = inversor_freq(IN.xe);
