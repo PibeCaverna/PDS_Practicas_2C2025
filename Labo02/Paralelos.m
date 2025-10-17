@@ -1,6 +1,6 @@
 %% Variables Globales
 a = 0.8;
-nd = 20;
+nd = 19;
 Fs = 8000;
 IIRM = load("SCRN0008.TXT");
 IIRF = load("SCRN0009.TXT");
@@ -9,7 +9,7 @@ FIRF = load("SCRN0012.TXT");
 
 %% Eco FIR (No recursivo)
 b = [1 zeros(1,nd) a];
-[H_Fir, W_fir] = freqz(b,a,1000,Fs);
+[H_Fir, W_fir] = freqz(b,1,1000,Fs);
 
 figure('Name','ECO FIR');
 subplot(2,1,1);
@@ -17,7 +17,7 @@ xlabel('f [Hz]');
 ylabel('|H(f)|');
 hold on;
 plot(W_fir,abs(H_Fir),LineWidth=1.2);
-plot(W_fir,FIRM(:,2),LineWidth=1.2);
+plot(FIRM(:,1),FIRM(:,2),LineWidth=1.2);
 hold off;
 legend({'Teorico' 'Experimental'});
 title('Modulo');
@@ -27,7 +27,7 @@ xlabel('f [Hz]');
 ylabel('\angle{H(f)}°');
 hold on;
 plot(W_fir,angle(H_Fir)*180/pi,LineWidth=1.2);
-plot(W_fir,FIRF(:,2),LineWidth=1.2);
+plot(FIRF(:,1),FIRF(:,2),LineWidth=1.2);
 hold off;
 legend({'Teorico' 'Experimental'});
 title('Fase');
@@ -43,7 +43,7 @@ xlabel('f [Hz]');
 ylabel('|H(f)|');
 hold on;
 plot(W_iir,abs(H_iir),LineWidth=1.2);
-plot(W_iir,IIRM(:,2),LineWidth=1.2);
+plot(IIRM(:,1),IIRM(:,2),LineWidth=1.2);
 hold off;
 legend({'Teorico' 'Experimental'});
 title('Modulo');
@@ -53,7 +53,7 @@ xlabel('f [Hz]');
 ylabel('\angle{H(f)}°');
 hold on;
 plot(W_iir,angle(H_iir)*180/pi,LineWidth=1.2);
-plot(W_iir,IIRF(:,2),LineWidth=1.2);
+plot(IIRF(:,1),IIRF(:,2),LineWidth=1.2);
 hold off;
 legend({'Teorico' 'Experimental'});
 title('Fase');
