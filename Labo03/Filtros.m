@@ -41,22 +41,6 @@ hbpi = wcbp(2)/pi*sinc(wcbp(2)*n/pi)-wcbp(1)/pi*sinc(wcbp(1)/pi*n);
 Wbp = kaiser(2*Mbp+1,betabp);
 %Filtro real
 PasaBanda = Wbp'.*hbpi;
-[hbp, fbp] = freqz(PasaBanda,1,1024,Fs);
-
-%% Plot filtro pasabanda
-figure('name','Pasabanda (Ventana Kaiser)');
-subplot(2,1,1);
-plot(fbp,20*log10(abs(hbp)));
-grid on;
-xlabel('f [Hz]');
-ylabel('|H(f)| [db]');
-title('Magnitud');
-subplot(2,1,2);
-plot(fbp,angle(hbp)*180/pi);
-grid on;
-xlabel('f [Hz]');
-ylabel('\angle{H(f)} [°]');
-title('Fase');
 
 %% Filtro Eliminabanda (br)
 %Frecuencias de paso
@@ -78,19 +62,3 @@ hbri = wcbr(2)/pi*sinc(wcbr(2)*n/pi)+wcbr(1)/pi*sinc(wcbr(1)/pi*n);
 Wbr = kaiser(2*Mbr+1,betabr);
 %Filtro real
 EliminaBanda = Wbr'.*hbri;
-[hbr, fbr] = freqz(EliminaBanda,1,1024,Fs);
-
-%% Plot filtro eliminabanda
-figure('name','Eliminabanda (Ventana Kaiser)')
-subplot(2,1,1);
-plot(fbr,20*log10(abs(hbr)));
-grid on;
-xlabel('f [Hz]');
-ylabel('|H(f)| [db]');
-title('Magnitud');
-subplot(2,1,2);
-plot(fbr,angle(hbr)*180/pi);
-grid on;
-xlabel('f [Hz]');
-ylabel('\angle{H(f)} [°]');
-title('Fase');
