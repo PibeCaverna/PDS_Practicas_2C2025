@@ -23,21 +23,24 @@ D = [10^(Ar/20) ...
      (10^(Ap/20)-1)/(10^(Ap/20)+1) ...
      10^(Ar/20)];
 %Frecuencias de rechazo
-frbp[fp1-Trnbw, fp2+Trnbw];
+frbp = [fp1-Trnbw, fp2+Trnbw];
+wrbp = 2*pi*frbp/Fs;
 %Frecuencias de corte
-fcbp[(frbp[1]+fp1)/2, (frbp[2]+fp2)/2];
-%Vector de corte
-fcbp = [frbp[1] fp1 fp2 frbp[2]];
+fcbp = [(frbp(1)+fp1)/2, (frbp(2)+fp2)/2];
+wcbp = 2*pi*fcbp/Fs;
+%Vector de bandas
+fbbp = [frbp(1) fp1 fp2 frbp(2)];
+wbbp = 2*pi*fbbp/Fs;
 %Parámetros ventana de kaiser, preguntar por dev = [0,1,0]
-[Nbp,Wnbp, betabp] = kaiserord(fcbp,[0,1,0],D,Fs);
+[Nbp,Wnbp, betabp] = kaiserord(fbbp,[0,1,0],D,Fs);
 Mbp = ceil(Nbp/2);
 n = -Mbp:Mbp;
 %Filtro ideal ¿Me conviene laburar en Hz?
-hbpi = fcbp[2]*sinc(fcbp[2]*n)-fcbp[1]*sinc(fcbp1[1]*n);
+hbpi = wcbp(2)/pi*sinc(wcbp(2)*n/pi)-wcbp(1)/pi*sinc(wcbp(1)/pi*n);
 %Ventana de kaiser
 Wbp = kaiser(2*Mbp+1,betabp);
 %filtro real
-[hbp, fbp] = freqz(Wbp'.*hbpi,1024,Fs);
+[hbp, fbp] = freqz(Wbp'.*hbpi,1,1024,Fs);
 
 %% Plot filtro pasabanda
 figure('name','Pasabanda (Ventana Kaiser)');
@@ -51,7 +54,7 @@ subplot(2,1,2);
 plot(fbp,angle(hbp)*180/pi);
 grid on;
 xlabel('f [Hz]');
-ylabel('arg\{H(f)} [°]');
+ylabel('\angle{H(f)} [°]');
 title('Fase');
 
 %% Filtro Eliminabanda (br)
