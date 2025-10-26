@@ -39,16 +39,17 @@ n = -Mbp:Mbp;
 hbpi = wcbp(2)/pi*sinc(wcbp(2)*n/pi)-wcbp(1)/pi*sinc(wcbp(1)/pi*n);
 %Ventana de kaiser
 Wbp = kaiser(2*Mbp+1,betabp);
-%filtro real
-[hbp, fbp] = freqz(Wbp'.*hbpi,1,1024,Fs);
+%Filtro real
+PasaBanda = Wbp'.*hbpi;
+[hbp, fbp] = freqz(PasaBanda,1,1024,Fs);
 
 %% Plot filtro pasabanda
 figure('name','Pasabanda (Ventana Kaiser)');
 subplot(2,1,1);
-plot(fbp,abs(hbp));
+plot(fbp,20*log10(abs(hbp)));
 grid on;
 xlabel('f [Hz]');
-ylabel('|H(f)|');
+ylabel('|H(f)| [db]');
 title('Magnitud');
 subplot(2,1,2);
 plot(fbp,angle(hbp)*180/pi);
@@ -58,3 +59,38 @@ ylabel('\angle{H(f)} [°]');
 title('Fase');
 
 %% Filtro Eliminabanda (br)
+%Frecuencias de paso
+fpbr = [fr1+Trnbw, fr2-Trnbw];
+wpbr = 2*pi*fpbr/Fs;
+%Frecuencias de corte
+fcbr = [(fr1+fpbr(1))/2, (fr2+fpbr(2))/2];
+wcbr = 2*pi*fcbr/Fs;
+%Vector de bandas (rari el fbbr)
+fbbr = [1 fpbr(1) fpbr(2) Fs/2-1];
+wbbr = 2*pi*fbbr/Fs;
+%Parámetros ventana de Kaiser (usa mismo D y Fs q bp)
+[Nbr,Wnbr,betabr] = kaiserord(fbbr,[0,1,0],D,Fs);
+Mbr = ceil(Nbr/2);
+n = -Mbr:Mbr;
+%Filtro ideal
+hbri = wcbr(2)/pi*sinc(wcbr(2)*n/pi)+wcbr(1)/pi*sinc(wcbr(1)/pi*n);
+%Ventana de Kaiser
+Wbr = kaiser(2*Mbr+1,betabr);
+%Filtro real
+EliminaBanda = Wbr'.*hbri;
+[hbr, fbr] = freqz(EliminaBanda,1,1024,Fs);
+
+%% Plot filtro eliminabanda
+figure('name','Eliminabanda (Ventana Kaiser)')
+subplot(2,1,1);
+plot(fbr,20*log10(abs(hbr)));
+grid on;
+xlabel('f [Hz]');
+ylabel('|H(f)| [db]');
+title('Magnitud');
+subplot(2,1,2);
+plot(fbr,angle(hbr)*180/pi);
+grid on;
+xlabel('f [Hz]');
+ylabel('\angle{H(f)} [°]');
+title('Fase');
