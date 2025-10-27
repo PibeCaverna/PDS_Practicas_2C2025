@@ -1,7 +1,7 @@
 /******************************************************/
 /* Coeficientes de un filtro FIR para usarlo con la   */
 /* funcion FIR de la librería DSPLIB                  */
-/*                  27-Oct-2025 12:02:25              */
+/*                  27-Oct-2025 13:36:50              */
 /******************************************************/
 #define FIRlength 417 
                      

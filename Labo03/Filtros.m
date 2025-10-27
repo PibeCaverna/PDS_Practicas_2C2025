@@ -53,7 +53,7 @@ wcbr = 2*pi*fcbr/Fs;
 fbbr = [fr1 fpbr(1) fpbr(2) fr2];
 wbbr = 2*pi*fbbr/Fs;
 %Parámetros ventana de Kaiser (usa mismo D y Fs q bp)
-[Nbr,Wnbr,betabr] = kaiserord(fbbr,[0,1,0],D,Fs);
+[Nbr,Wnbr,betabr] = kaiserord(fbbr,[1,0,1],D,Fs);
 Mbr = ceil(Nbr/2);
 n = -Mbr:Mbr;
 %Filtro ideal
