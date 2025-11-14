@@ -6,13 +6,13 @@ Fs = 48000;
 %ancho de banda de paso
 bwp = 1000;
 %ancho banda de rechazo
-bwr = 2000;
+bwr = 3000;
 %Tamaño banda Transición
 Trnbw = 500;
 
 %% Specs
 % Pasabanda     Eliminabanda
-fp1 = 500;      fr1 = 500;      
+fp1 = 1000;     fr1 = 1000;      
 fp2 = fp1+bwp;  fr2 = fr1+bwr;
 %Amplitudes máximas (db)
 Ap = 1;        Ar = -70;
@@ -50,14 +50,15 @@ wpbr = 2*pi*fpbr/Fs;
 fcbr = [(fr1+fpbr(1))/2, (fr2+fpbr(2))/2];
 wcbr = 2*pi*fcbr/Fs;
 %Vector de bandas (rari el fbbr)
-fbbr = [1 fpbr(1) fpbr(2) Fs/2-1];
+fbbr = [fr1 fpbr(1) fpbr(2) fr2];
 wbbr = 2*pi*fbbr/Fs;
 %Parámetros ventana de Kaiser (usa mismo D y Fs q bp)
-[Nbr,Wnbr,betabr] = kaiserord(fbbr,[0,1,0],D,Fs);
+[Nbr,Wnbr,betabr] = kaiserord(fbbr,[1,0,1],D,Fs);
 Mbr = ceil(Nbr/2);
 n = -Mbr:Mbr;
 %Filtro ideal
-hbri = wcbr(2)/pi*sinc(wcbr(2)*n/pi)+wcbr(1)/pi*sinc(wcbr(1)/pi*n);
+hbri = wcbr(1)/pi*sinc(wcbr(1)/pi*n)-wcbr(2)/pi*sinc(wcbr(2)*n/pi);
+hbri(ceil(length(hbri)/2)) = 1+hbri(ceil(length(hbri)/2));
 %Ventana de Kaiser
 Wbr = kaiser(2*Mbr+1,betabr);
 %Filtro real
