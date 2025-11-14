@@ -62,11 +62,10 @@ legend('show')                                                      %|
 %---------------------------------------------------------------------
 
 %% 3_ Espectros escalados 
-%Aca escalamos los espectros. Según Nacho y GPT con 2/N alcanza pa
-%Todo, en 5.B del apunte habla de lobulos pero no lo entendí
+% Tengo que multiplicar por 2 y dividir por el area de la ventana (H(2w=0))
 X100scl = {};
 for k = 1:length(X100)
-  X100scl{k} = abs(X100{k})*2/N;
+  X100scl{k} = abs(X100{k})*2/sum(ventanas{k}{1});
 end
 %ploteamos las aproximaciones_____________________________________________
 figure('Name', 'espectros ventaneados y escalados N = 100, NFFT = N');  %|
@@ -103,7 +102,7 @@ legend('show')                                                      %|
 %Escalamos
 X1000scl = {};
 for k = 1:length(X1000)
-  X1000scl{k} = abs(X1000{k})*2/N;
+  X1000scl{k} = abs(X1000{k})*2/sum(ventanas{k}{1});
 end
 %ploteamos las aproximaciones______________________________________________
 figure('Name', 'espectros ventaneados y escalados N = 100, NFFT = 1000');%|
