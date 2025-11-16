@@ -155,7 +155,7 @@ tickw = {[0 pi/4 pi/2 3*pi/4 pi],...
 %Struct con la data relevante de los incisos anteriores
 M.w = hamming(N,'periodic');
 M.x = x.*M.w';
-M.X = fft(M.x,NFFT);
+M.X = fft(M.x,NFFT)*2/sum(M.w);
 %plot para buscar el "k" de cada pico
 figure('Name','Espectro mediante ventana de Hamming N = 100, NFFT = 1000');
 semilogy(abs(M.X(1:NFFT/2)),'Color','r'); xlabel('k+1'); ylabel('|X(k)|');
@@ -167,4 +167,12 @@ hold on; plot(M.peak.Kp1,M.peak.A,'.','MarkerSize',15,"Color","b");
 xline(M.peak.Kp1,"--"); hold off;
 title('Espectro mediante ventana de Hamming N = 100, NFFT = 1000');
 %Reconstrucción
-n = (0:N); xe = sum(M.peak.A .* cos(M.peak.w .* n.' + M.peak.p),2)
+n = (0:N-1); xe = sum(M.peak.A .* cos(M.peak.w .* n.' + M.peak.p),2);
+figure('Name','Comparación señal de entrada vs reconstruida');
+subplot(2,1,1); hold on; plot(n,x,'--');plot(n,xe);
+legend('original','reconstruida');
+title('Señal original vs reconstruida, N = 100, NFFT = 1000');hold off;
+%Calculos de error
+deltaxmax = max(x-xe); EMC = norm(x(:) - xe(:)) / norm(x(:)) * 100;
+subplot(2,1,2); plot(n,deltaxmax,'Color','r');
+title(sprintf("x[n]-xe[n] (N = 100, NFFT = 1000), EMC = %.4f",EMC));
