@@ -119,16 +119,16 @@ end                                                                      %|
 % Elijo todos los picos locales, pero hay algunos que son muy tenues
 % Los agarre a mano, puede que esten un toq mal
 rctabla = {'Rectangular',...
-           [0.503662 2.04429  1.08036 0.132646],...
+           [0.202693 2.04429  1.08036 0.132646],...
            [0.202693 0.963254 1.29693 2.26018]};
 hatabla = {'Hamming',...
-           [0.0606319 1.08201  0.544943 0.0470894],...
-           [0.509958  0.963254 1.29693  2.25389]};
+           [0.1123 2.0037 1.0092 0.0872],...
+           [0.5100 0.9633 1.2967 2.2539]};
 vhtabla = {'Von Hann',...
-           [0.0496613 0.998329 0.498469 0.0399608],...
-           [0.522549  0.963254 1.29693  2.24759],};
+           [0.0993 1.9967 0.9969 0.0108 0.0799],...
+           [0.5225 0.9633 1.2969 1.7125 2.2476]};
 bltabla = {'Blackman',...
-           [0.0419 0.8391 0.4195 0.0043 0.0336],...
+           [0.0997 1.9980 0.9987 0.0103 0.0800],...
            [0.5163 0.9633 1.2969 1.7125 2.2476]};
 % Construcción de tablas individuales
 T_rect = table(rctabla{2}(:), rctabla{3}(:)/pi, ...
@@ -146,3 +146,25 @@ disp('==== Ventana Von Hann ===='),   disp(T_hann)
 disp('==== Ventana Blackman ===='),   disp(T_blk)
 
 %% 7_ Reconstruccion y sintesis mediante ventana de hamming
+%Limpiamos todo y nos quedamos solo con la ventana de hamming
+clear; close all; clc; N = 100; NFFT = 1000;
+load("senal0010_0100.mat");
+w = linspace(0,pi,NFFT/2);
+tickw = {[0 pi/4 pi/2 3*pi/4 pi],...
+        {"0", "\pi/4", "\pi/2", "3\pi/4", "\pi"}};
+%Struct con la data relevante de los incisos anteriores
+M.w = hamming(N,'periodic');
+M.x = x.*M.w';
+M.X = fft(M.x,NFFT);
+%plot para buscar el "k" de cada pico
+figure('Name','Espectro mediante ventana de Hamming N = 100, NFFT = 1000');
+semilogy(abs(M.X(1:NFFT/2)),'Color','r'); xlabel('k+1'); ylabel('|X(k)|');
+%establezco los valores de k+1 de los picos y su amplitud
+M.peak.Kp1 = [082 154 207 359]; M.peak.A = abs(M.X(M.peak.Kp1));
+M.peak.w = M.peak.Kp1*2*pi/NFFT; M.peak.p = angle(M.X(M.peak.Kp1));
+%Agrego picos al plot
+hold on; plot(M.peak.Kp1,M.peak.A,'.','MarkerSize',15,"Color","b");
+xline(M.peak.Kp1,"--"); hold off;
+title('Espectro mediante ventana de Hamming N = 100, NFFT = 1000');
+%Reconstrucción
+n = (0:N); xe = sum(M.peak.A .* cos(M.peak.w .* n.' + M.peak.p),2)
