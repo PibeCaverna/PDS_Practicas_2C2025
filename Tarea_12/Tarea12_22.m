@@ -146,33 +146,76 @@ disp('==== Ventana Von Hann ===='),   disp(T_hann)
 disp('==== Ventana Blackman ===='),   disp(T_blk)
 
 %% 7_ Reconstruccion y sintesis mediante ventana de hamming
-%Limpiamos todo y nos quedamos solo con la ventana de hamming
-clear; close all; clc; N = 100; NFFT = 1000;
+clear; close all; clc; 
+N = 100; 
 load("senal0010_0100.mat");
-w = linspace(0,pi,NFFT/2);
-tickw = {[0 pi/4 pi/2 3*pi/4 pi],...
-        {"0", "\pi/4", "\pi/2", "3\pi/4", "\pi"}};
-%Struct con la data relevante de los incisos anteriores
-M.w = hamming(N,'periodic');
-M.x = x.*M.w';
-M.X = fft(M.x,NFFT)*2/sum(M.w);
-%plot para buscar el "k" de cada pico
-figure('Name','Espectro mediante ventana de Hamming N = 100, NFFT = 1000');
-semilogy(abs(M.X(1:NFFT/2)),'Color','r'); xlabel('k+1'); ylabel('|X(k)|');
-%establezco los valores de k+1 de los picos y su amplitud
-M.peak.Kp1 = [082 154 207 359]; M.peak.A = abs(M.X(M.peak.Kp1));
-M.peak.w = M.peak.Kp1*2*pi/NFFT; M.peak.p = angle(M.X(M.peak.Kp1));
-%Agrego picos al plot
-hold on; plot(M.peak.Kp1,M.peak.A,'.','MarkerSize',15,"Color","b");
-xline(M.peak.Kp1,"--"); hold off;
-title('Espectro mediante ventana de Hamming N = 100, NFFT = 1000');
-%Reconstrucción
-n = (0:N-1); xe = sum(M.peak.A .* cos(M.peak.w .* n.' + M.peak.p),2);
-figure('Name','Comparación señal de entrada vs reconstruida');
-subplot(2,1,1); hold on; plot(n,x,'--');plot(n,xe);
+%Ventana
+M.w = hamming(N,'periodic')';
+%Definimos los dos NFFT a usar
+NFFT1 = 100;
+NFFT2 = 1000;
+% procesado y reconstrucción
+R1 = procesar_fft_y_reconstruccion(x,M.w,NFFT1);
+R2 = procesar_fft_y_reconstruccion(x,M.w,NFFT2);
+%Plots
+figure('Name','Resultados NFFT = 100 y NFFT = 1000');
+subplot(2,2,1);
+semilogy(abs(R1.Xh),'Color','r'); hold on;
+plot(R1.Kp1, R1.A, '.', 'MarkerSize', 15, 'Color', 'b');
+xline(R1.Kp1,"--");
+xlabel('k+1'); ylabel('|X(k)|');
+title(sprintf("Espectro ventana Hamming (NFFT=%d), EMC=%.4f",NFFT1,R1.EMC));
+hold off;
+subplot(2,2,2);
+n = 0:N-1;
+plot(n,x,'k--'); hold on;
+plot(n,R1.xe,'b');
+title(sprintf("Reconstruccion (NFFT=%d), EMC=%.4f",NFFT1,R1.EMC));
 legend('original','reconstruida');
-title('Señal original vs reconstruida, N = 100, NFFT = 1000');hold off;
-%Calculos de error
-deltaxmax = max(x-xe); EMC = norm(x(:) - xe(:)) / norm(x(:)) * 100;
-subplot(2,1,2); plot(n,deltaxmax,'Color','r');
-title(sprintf("x[n]-xe[n] (N = 100, NFFT = 1000), EMC = %.4f",EMC));
+hold off;
+subplot(2,2,3);
+semilogy(abs(R2.Xh),'Color','r'); hold on;
+plot(R2.Kp1, R2.A, '.', 'MarkerSize', 15, 'Color', 'b');
+xline(R2.Kp1,"--");
+xlabel('k+1'); ylabel('|X(k)|');
+title(sprintf("Espectro ventana Hamming (NFFT=%d), EMC=%.4f",NFFT2,R2.EMC));
+hold off;
+subplot(2,2,4);
+plot(n,x,'k--'); hold on;
+plot(n,R2.xe,'b');
+title(sprintf("Reconstruccion (NFFT=%d), EMC=%.4f",NFFT2,R2.EMC));
+legend('original','reconstruida');
+hold off;
+
+%% Funciones Auxiliares
+function R = procesar_fft_y_reconstruccion(x,win,NFFT)
+    Mx = x(:)' .* win;
+    M_X = fft(Mx,NFFT) * 2 / sum(win);
+    M_Xh = M_X(1:NFFT/2);
+    Kp1 = encontrar_picos_fijos(NFFT);
+    A = abs(M_X(Kp1));
+    p = angle(M_X(Kp1));
+    w = (Kp1-1) * 2*pi/NFFT;
+    n = (0:length(win)-1)';
+    xe = sum(A .* cos(w .* n + p),2);
+    deltax = x(:) - xe(:);
+    EMC = norm(deltax)/norm(x) * 100;
+    R.Xh  = M_Xh;
+    R.Kp1 = Kp1;
+    R.A   = A;
+    R.p   = p;
+    R.w   = w;
+    R.xe  = xe;
+    R.EMC = EMC;
+end
+
+function Kp1 = encontrar_picos_fijos(NFFT)
+    switch NFFT
+        case 100
+            Kp1 = [9 16 22 37]; 
+      case 1000
+            Kp1 = [82 154 207 359];
+        otherwise
+            error("No hay picos definidos para este NFFT");
+    end
+end
