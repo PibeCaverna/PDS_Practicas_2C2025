@@ -78,13 +78,13 @@ lscp40.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
 Scope.Ts = mean(diff(Scope.m20.C1(:,1)));
 Scope.Fs = 1/Scope.Ts;
 % Establezco una tasa de muestreo más adecuada
-Fsd = 200000;
+Fsd = 50000;
 % Decimo los datos del osciloscopio
-%D = Scope.Fs/Fsd;
-%Scope.m20.C1 = decimarcanal(Scope.m20.C1,D);
-%Scope.m20.C2 = decimarcanal(Scope.m20.C2,D);
-%Scope.m40.C1 = decimarcanal(Scope.m40.C1,D);
-%Scope.m40.C2 = decimarcanal(Scope.m40.C2,D);
+D = floor(Scope.Fs/Fsd);
+Scope.m20.C1 = decimarcanal(Scope.m20.C1,D);
+Scope.m20.C2 = decimarcanal(Scope.m20.C2,D);
+Scope.m40.C1 = decimarcanal(Scope.m40.C1,D);
+Scope.m40.C2 = decimarcanal(Scope.m40.C2,D);
 %% Ploteo otra vez, para chequear
 figure('Name','Osciloscopio decimado');
 
@@ -112,14 +112,14 @@ figure('Name', 'Espectros Calculados')
 subplot(2,1,1); title("Modulo"); grid on; hold on;
 pltscope_mod(Scope.m20.H,Scope.m20.id);
 pltscope_mod(Scope.m40.H,Scope.m40.id);
-hold off; lsosm = legend('show');
+hold off;xlim([0 25000]);lsosm = legend('show');
 lsosm.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
     iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
 
 subplot(2,1,2); title("Fase"); grid on; hold on;
 pltscope_phase(Scope.m20.H,Scope.m20.id);
 pltscope_phase(Scope.m40.H,Scope.m40.id);
-hold off; lsosf = legend('show');
+hold off;xlim([0 25000]);lsosf = legend('show');
 lsosf.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
     iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
 %% Plot final
@@ -133,7 +133,7 @@ pltsgnl(Spect.BL.Mod,Spect.BL.Nom);
 pltsgnl(Spect.R.Mod,Spect.R.Nom);
 pltscope_mod(Scope.m20.H,Scope.m20.id);
 pltscope_mod(Scope.m40.H,Scope.m40.id);
-hold off; lsesm = legend('show');
+hold off;xlim([0 25000]);lsesm = legend('show');
 lsesm.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
     iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
 
@@ -145,7 +145,7 @@ pltsgnl(Spect.BL.PH,Spect.BL.Nom);
 pltsgnl(Spect.R.PH,Spect.R.Nom);
 pltscope_phase(Scope.m20.H,Scope.m20.id);
 pltscope_phase(Scope.m40.H,Scope.m40.id);
-hold off; lsesf = legend('show');
+hold off;xlim([0 25000]);lsesf = legend('show');
 lsesf.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
     iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
 
@@ -189,13 +189,15 @@ end
 function pltscope_mod(H, id)
     % Grafica el módulo de una estructura H usando pltsgnl
     N = length(H(:,3));
-    M = [H(1:floor(N/2),3), H(1:floor(N/2),1)];   % Armo vector [f, |H|]
+    N = floor(N/2);
+    M = [H(1:N,3), H(1:N,1)];   % Armo vector [f, |H|]
     pltsgnl(M, id);
 end
 
 function pltscope_phase(H, id)
     % Grafica la fase de una estructura H usando pltsgnl
     N = length(H(:,3));
-    P = [H(1:N/2,3), unwrap(H(1:N/2,2))];   % Armo vector [f, ∠H]
+    N = floor(N/2);
+    P = [H(1:N,3), unwrap(H(1:N,2))];   % Armo vector [f, ∠H]
     pltsgnl(P, id);
 end
