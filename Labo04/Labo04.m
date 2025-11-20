@@ -32,81 +32,27 @@ Scope.m40.C1 = load("Datos_Osciloscopio/C1_40micro.txt");
 Scope.m40.C2 = load("Datos_Osciloscopio/C2_40micro.txt");
 Scope.m40.id = "Ancho de pulso = 40{\mu}s";
 
-%% Figuras de control (Para chequear)
-% Analizador de espectro
-figure('Name','Analizador de espectro');
-
-subplot(2,1,1); title("Modulo"); grid on; hold on;
-pltsgnl(Spect.S.Mod,Spect.S.Nom);
-pltsgnl(Spect.C.Mod,Spect.C.Nom);
-pltsgnl(Spect.B.Mod,Spect.B.Nom);
-pltsgnl(Spect.BL.Mod,Spect.BL.Nom);
-pltsgnl(Spect.R.Mod,Spect.R.Nom);
-hold off; lsam = legend('show');
-lsam.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
-    iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
-
-subplot(2,1,2); title("Fase"); grid on; hold on;
-pltsgnl(Spect.S.PH,Spect.S.Nom);
-pltsgnl(Spect.C.PH,Spect.C.Nom);
-pltsgnl(Spect.B.PH,Spect.B.Nom);
-pltsgnl(Spect.BL.PH,Spect.BL.Nom);
-pltsgnl(Spect.R.PH,Spect.R.Nom);
-hold off; lsaf = legend('show');
-lsaf.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
-    iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
-
-%% Osciloscopio
-figure('Name','Osciloscopio');
-
-subplot(2,1,1); title('Ancho de pulso = 20us'); grid on; hold on;
-pltsgnl(Scope.m20.C1,'Canal 1');
-pltsgnl(Scope.m20.C2,'Canal 2');
-hold off; lscp20 = legend('show');
-lscp20.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
-    iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
-
-subplot(2,1,2); title('Ancho de pulso = 40us'); grid on; hold on;
-pltsgnl(Scope.m40.C1,'Canal 1');
-pltsgnl(Scope.m40.C2,'Canal 2');
-hold off; lscp40 = legend('show');
-lscp40.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
-    iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
-
 %% Construcción de la respuesta en frecuencia
 % Obtengo la tasa de muestreo, es la misma para todos
 Scope.Ts = mean(diff(Scope.m20.C1(:,1)));
 Scope.Fs = 1/Scope.Ts;
 % Establezco una tasa de muestreo más adecuada
-Fsd = 50000;
+% menos del 1 mega para no matar mi pc, más de 50k para
+% evitar el aliasing en la region del analizador
+Fsd = 250000;
 % Decimo los datos del osciloscopio
 D = floor(Scope.Fs/Fsd);
 Scope.m20.C1 = decimarcanal(Scope.m20.C1,D);
 Scope.m20.C2 = decimarcanal(Scope.m20.C2,D);
 Scope.m40.C1 = decimarcanal(Scope.m40.C1,D);
 Scope.m40.C2 = decimarcanal(Scope.m40.C2,D);
-%% Ploteo otra vez, para chequear
-figure('Name','Osciloscopio decimado');
-
-subplot(2,1,1); title('Ancho de pulso = 20us'); grid on; hold on;
-pltsgnl(Scope.m20.C1,'Canal 1');
-pltsgnl(Scope.m20.C2,'Canal 2');
-hold off; lscpd20 = legend('show');
-lscpd20.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
-    iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
-
-subplot(2,1,2); title('Ancho de pulso = 40us'); grid on; hold on;
-pltsgnl(Scope.m40.C1,'Canal 1');
-pltsgnl(Scope.m40.C2,'Canal 2');
-hold off; lscpd40 = legend('show');
-lscpd40.ItemHitFcn = @(~,ev) set(ev.Peer, 'Visible', ...
-    iff(strcmp(ev.Peer.Visible,'on'),'off','on'));
-%% Calculo las respuestas impulsivas
+% Calculo las respuestas impulsivas
 [M P F] = fresponse(Scope.m20.C1,Scope.m20.C2);
 Scope.m20.H = [M P F];
 [M P F] = fresponse(Scope.m40.C1,Scope.m40.C2);
 Scope.m40.H = [M P F];
 clear M; clear P; clear F;
+
 %% Las ploteamos
 figure('Name', 'Espectros Calculados')
 subplot(2,1,1); title("Modulo"); grid on; hold on;
@@ -176,7 +122,7 @@ function [Hkm Hkf fk] = fresponse(sigi,sigo)
     %TDF
     Ts = mean(diff(t)); Fs = 1/Ts; N = length(x);
     fk = ((0:N-1)/N*Fs)'; Xk = fft(x); Yk = fft(y);
-    Hkm = abs(Yk./Xk); Hkf = angle(Yk./Xk);
+    Hkm = 20*log10(abs(Yk./Xk)); Hkf = angle(Yk./Xk);
 end
 
 function c_dec = decimarcanal(Canal,D)
